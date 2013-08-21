@@ -21,76 +21,85 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
  */
 abstract class AbstractResponse implements ResponseInterface
 {
-    protected $request;
-    protected $data;
 
-    public function __construct(RequestInterface $request, $data)
-    {
-        $this->request = $request;
-        $this->data = $data;
-    }
+	protected $request;
+	protected $data;
 
-    public function getRequest()
-    {
-        return $this->request;
-    }
+	public function __construct(RequestInterface $request, $data)
+	{
+		$this->request = $request;
+		$this->data = $data;
+	}
 
-    public function isRedirect()
-    {
-        return false;
-    }
+	public function getRequest()
+	{
+		return $this->request;
+	}
 
-    public function getData()
-    {
-        return $this->data;
-    }
+	public function isRedirect()
+	{
+		return false;
+	}
 
-    public function getMessage()
-    {
-        return null;
-    }
+	public function isPending()
+	{
+		return false;
+	}
 
-    public function getCode()
-    {
-        return null;
-    }
+	public function getData()
+	{
+		return $this->data;
+	}
 
-    public function getTransactionReference()
-    {
-        return null;
-    }
+	public function getMessage()
+	{
+		return null;
+	}
 
-    /**
-     * Automatically perform any required redirect
-     *
-     * This method is meant to be a helper for simple scenarios. If you want to customize the
-     * redirection page, just call the getRedirectUrl() and getRedirectData() methods directly.
-     */
-    public function redirect()
-    {
-        $this->getRedirectResponse()->send();
-        exit;
-    }
+	public function getCode()
+	{
+		return null;
+	}
 
-    public function getRedirectResponse()
-    {
-        if (!$this instanceof RedirectResponseInterface || !$this->isRedirect()) {
-            throw new RuntimeException('This response does not support redirection.');
-        }
+	public function getTransactionReference()
+	{
+		return null;
+	}
 
-        if ('GET' === $this->getRedirectMethod()) {
-            return HttpRedirectResponse::create($this->getRedirectUrl());
-        } elseif ('POST' === $this->getRedirectMethod()) {
-            $hiddenFields = '';
-            foreach ($this->getRedirectData() as $key => $value) {
-                $hiddenFields .= sprintf(
-                    '<input type="hidden" name="%1$s" value="%2$s" />',
-                    htmlspecialchars($key, ENT_QUOTES, 'UTF-8'),
-                    htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
-                )."\n";
-            }
+	/**
+	 * Automatically perform any required redirect
+	 *
+	 * This method is meant to be a helper for simple scenarios. If you want to customize the
+	 * redirection page, just call the getRedirectUrl() and getRedirectData() methods directly.
+	 */
+	public function redirect()
+	{
+		$this->getRedirectResponse()->send();
+		exit;
+	}
 
-            $output = '<!DOCTYPE html>
+	public function getRedirectResponse()
+	{
+		if (!$this instanceof RedirectResponseInterface || !$this->isRedirect())
+		{
+			throw new RuntimeException('This response does not support redirection.');
+		}
+
+		if ('GET' === $this->getRedirectMethod())
+		{
+			return HttpRedirectResponse::create($this->getRedirectUrl());
+		}
+		elseif ('POST' === $this->getRedirectMethod())
+		{
+			$hiddenFields = '';
+			foreach ($this->getRedirectData() as $key => $value)
+			{
+				$hiddenFields .= sprintf(
+								'<input type="hidden" name="%1$s" value="%2$s" />', htmlspecialchars($key, ENT_QUOTES, 'UTF-8'), htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+						) . "\n";
+			}
+
+			$output = '<!DOCTYPE html>
 <html>
     <head>
         <title>Redirecting...</title>
@@ -105,11 +114,12 @@ abstract class AbstractResponse implements ResponseInterface
         </form>
     </body>
 </html>';
-            $output = sprintf($output, htmlspecialchars($this->getRedirectUrl(), ENT_QUOTES, 'UTF-8'), $hiddenFields);
+			$output = sprintf($output, htmlspecialchars($this->getRedirectUrl(), ENT_QUOTES, 'UTF-8'), $hiddenFields);
 
-            return HttpResponse::create($output);
-        }
+			return HttpResponse::create($output);
+		}
 
-        throw new RuntimeException('Invalid redirect method "'.$this->getRedirectMethod().'".');
-    }
+		throw new RuntimeException('Invalid redirect method "' . $this->getRedirectMethod() . '".');
+	}
+
 }

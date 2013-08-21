@@ -19,28 +19,44 @@ use Omnipay\Common\Message\RequestInterface;
  */
 class Response extends AbstractResponse
 {
-    public function __construct(RequestInterface $request, $data)
-    {
-        $this->request = $request;
-        parse_str($data, $this->data);
-    }
 
-    public function isSuccessful()
-    {
-        return isset($this->data['ACK']) && in_array($this->data['ACK'], array('Success', 'SuccessWithWarning'));
-    }
+	public function __construct(RequestInterface $request, $data)
+	{
+		$this->request = $request;
+		parse_str($data, $this->data);
+	}
 
-    public function getTransactionReference()
-    {
-        foreach (array('REFUNDTRANSACTIONID', 'TRANSACTIONID', 'PAYMENTINFO_0_TRANSACTIONID') as $key) {
-            if (isset($this->data[$key])) {
-                return $this->data[$key];
-            }
-        }
-    }
+	public function isSuccessful()
+	{
+		return isset($this->data['ACK']) && in_array($this->data['ACK'], array('Success', 'SuccessWithWarning'));
+	}
 
-    public function getMessage()
-    {
-        return isset($this->data['L_LONGMESSAGE0']) ? $this->data['L_LONGMESSAGE0'] : null;
-    }
+	public function isPending()
+	{
+		foreach (array("PAYMENTINFO_0_PAYMENTSTATUS", "PAYMENTSTATUS") as $key)
+		{
+			if (isset($this->data[$key]))
+			{
+				return $this->data[$key] == "Pending" ? true : false;
+			}
+		}
+		return false;
+	}
+
+	public function getTransactionReference()
+	{
+		foreach (array('REFUNDTRANSACTIONID', 'TRANSACTIONID', 'PAYMENTINFO_0_TRANSACTIONID') as $key)
+		{
+			if (isset($this->data[$key]))
+			{
+				return $this->data[$key];
+			}
+		}
+	}
+
+	public function getMessage()
+	{
+		return isset($this->data['L_LONGMESSAGE0']) ? $this->data['L_LONGMESSAGE0'] : null;
+	}
+
 }

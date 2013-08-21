@@ -41,4 +41,13 @@ class ResponseTest extends TestCase
         $this->assertNull($response->getTransactionReference());
         $this->assertSame('This transaction cannot be processed. Please enter a valid credit card expiration year.', $response->getMessage());
     }
+	
+	public function testIsPending()
+	{
+		$httpResponse = $this->getMockHttpResponse('PendingTransactionResponse.txt');
+        $response = new Response($this->getMockRequest(), $httpResponse->getBody());
+		
+		$this->assertTrue($response->isPending());
+		
+	}
 }

@@ -19,10 +19,12 @@ class AbstractResponseTest extends TestCase
     public function testDefaultMethods()
     {
         $response = m::mock('\Omnipay\Common\Message\AbstractResponse[isSuccessful]');
-
+		
         $this->assertFalse($response->isRedirect());
+		$this->assertFalse($response->isPending());
         $this->assertNull($response->getData());
         $this->assertNull($response->getTransactionReference());
         $this->assertNull($response->getMessage());
+		$this->assertNull($response->getMessage());
     }
 }

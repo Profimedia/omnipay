@@ -21,206 +21,221 @@ use Symfony\Component\HttpFoundation\Request as HttpRequest;
  */
 abstract class AbstractGateway implements GatewayInterface
 {
-    /**
-     * @var \Symfony\Component\HttpFoundation\ParameterBag
-     */
-    protected $parameters;
 
-    /**
-     * @var \Guzzle\Http\ClientInterface
-     */
-    protected $httpClient;
+	/**
+	 * @var \Symfony\Component\HttpFoundation\ParameterBag
+	 */
+	protected $parameters;
 
-    /**
-     * @var \Symfony\Component\HttpFoundation\Request
-     */
-    protected $httpRequest;
+	/**
+	 * @var \Guzzle\Http\ClientInterface
+	 */
+	protected $httpClient;
 
-    /**
-     * Create a new gateway instance
-     *
-     * @param ClientInterface $httpClient  A Guzzle client to make API calls with
-     * @param HttpRequest     $httpRequest A Symfony HTTP request object
-     */
-    public function __construct(ClientInterface $httpClient = null, HttpRequest $httpRequest = null)
-    {
-        $this->httpClient = $httpClient ?: $this->getDefaultHttpClient();
-        $this->httpRequest = $httpRequest ?: $this->getDefaultHttpRequest();
-        $this->initialize();
-    }
+	/**
+	 * @var \Symfony\Component\HttpFoundation\Request
+	 */
+	protected $httpRequest;
 
-    public function getShortName()
-    {
-        return Helper::getGatewayShortName(get_class($this));
-    }
+	/**
+	 * Create a new gateway instance
+	 *
+	 * @param ClientInterface $httpClient  A Guzzle client to make API calls with
+	 * @param HttpRequest     $httpRequest A Symfony HTTP request object
+	 */
+	public function __construct(ClientInterface $httpClient = null, HttpRequest $httpRequest = null)
+	{
+		$this->httpClient = $httpClient ? : $this->getDefaultHttpClient();
+		$this->httpRequest = $httpRequest ? : $this->getDefaultHttpRequest();
+		$this->initialize();
+	}
 
-    public function initialize(array $parameters = array())
-    {
-        $this->parameters = new ParameterBag;
+	public function getShortName()
+	{
+		return Helper::getGatewayShortName(get_class($this));
+	}
 
-        // set default parameters
-        foreach ($this->getDefaultParameters() as $key => $value) {
-            if (is_array($value)) {
-                $this->parameters->set($key, reset($value));
-            } else {
-                $this->parameters->set($key, $value);
-            }
-        }
+	public function initialize(array $parameters = array())
+	{
+		$this->parameters = new ParameterBag;
 
-        Helper::initialize($this, $parameters);
+		// set default parameters
+		foreach ($this->getDefaultParameters() as $key => $value)
+		{
+			if (is_array($value))
+			{
+				$this->parameters->set($key, reset($value));
+			}
+			else
+			{
+				$this->parameters->set($key, $value);
+			}
+		}
 
-        return $this;
-    }
+		Helper::initialize($this, $parameters);
 
-    public function getParameters()
-    {
-        return $this->parameters->all();
-    }
+		return $this;
+	}
 
-    protected function getParameter($key)
-    {
-        return $this->parameters->get($key);
-    }
+	public function getParameters()
+	{
+		return $this->parameters->all();
+	}
 
-    protected function setParameter($key, $value)
-    {
-        $this->parameters->set($key, $value);
+	protected function getParameter($key)
+	{
+		return $this->parameters->get($key);
+	}
 
-        return $this;
-    }
+	protected function setParameter($key, $value)
+	{
+		$this->parameters->set($key, $value);
 
-    public function getTestMode()
-    {
-        return $this->getParameter('testMode');
-    }
+		return $this;
+	}
 
-    public function setTestMode($value)
-    {
-        return $this->setParameter('testMode', $value);
-    }
+	public function getTestMode()
+	{
+		return $this->getParameter('testMode');
+	}
 
-    public function getCurrency()
-    {
-        return strtoupper($this->getParameter('currency'));
-    }
+	public function setTestMode($value)
+	{
+		return $this->setParameter('testMode', $value);
+	}
 
-    public function setCurrency($value)
-    {
-        return $this->setParameter('currency', $value);
-    }
+	public function getCurrency()
+	{
+		return strtoupper($this->getParameter('currency'));
+	}
 
-    /**
-     * Supports Authorize
-     *
-     * @return boolean True if this gateway supports the authorize() method
-     */
-    public function supportsAuthorize()
-    {
-        return method_exists($this, 'authorize');
-    }
+	public function setCurrency($value)
+	{
+		return $this->setParameter('currency', $value);
+	}
 
-    /**
-     * Supports Complete Authorize
-     *
-     * @return boolean True if this gateway supports the completeAuthorize() method
-     */
-    public function supportsCompleteAuthorize()
-    {
-        return method_exists($this, 'completeAuthorize');
-    }
+	/**
+	 * Supports Authorize
+	 *
+	 * @return boolean True if this gateway supports the authorize() method
+	 */
+	public function supportsAuthorize()
+	{
+		return method_exists($this, 'authorize');
+	}
 
-    /**
-     * Supports Capture
-     *
-     * @return boolean True if this gateway supports the capture() method
-     */
-    public function supportsCapture()
-    {
-        return method_exists($this, 'capture');
-    }
+	/**
+	 * Supports Complete Authorize
+	 *
+	 * @return boolean True if this gateway supports the completeAuthorize() method
+	 */
+	public function supportsCompleteAuthorize()
+	{
+		return method_exists($this, 'completeAuthorize');
+	}
 
-    /**
-     * Supports Complete Purchase
-     *
-     * @return boolean True if this gateway supports the completePurchase() method
-     */
-    public function supportsCompletePurchase()
-    {
-        return method_exists($this, 'completePurchase');
-    }
+	/**
+	 * Supports Capture
+	 *
+	 * @return boolean True if this gateway supports the capture() method
+	 */
+	public function supportsCapture()
+	{
+		return method_exists($this, 'capture');
+	}
 
-    /**
-     * Supports Refund
-     *
-     * @return boolean True if this gateway supports the refund() method
-     */
-    public function supportsRefund()
-    {
-        return method_exists($this, 'refund');
-    }
+	/**
+	 * Supports Complete Purchase
+	 *
+	 * @return boolean True if this gateway supports the completePurchase() method
+	 */
+	public function supportsCompletePurchase()
+	{
+		return method_exists($this, 'completePurchase');
+	}
 
-    /**
-     * Supports Void
-     *
-     * @return boolean True if this gateway supports the void() method
-     */
-    public function supportsVoid()
-    {
-        return method_exists($this, 'void');
-    }
+	/**
+	 * Supports Refund
+	 *
+	 * @return boolean True if this gateway supports the refund() method
+	 */
+	public function supportsRefund()
+	{
+		return method_exists($this, 'refund');
+	}
 
-    /**
-     * Supports CreateCard
-     *
-     * @return boolean True if this gateway supports the create() method
-     */
-    public function supportsCreateCard()
-    {
-        return method_exists($this, 'createCard');
-    }
+	/**
+	 * Supports Void
+	 *
+	 * @return boolean True if this gateway supports the void() method
+	 */
+	public function supportsVoid()
+	{
+		return method_exists($this, 'void');
+	}
 
-    /**
-     * Supports DeleteCard
-     *
-     * @return boolean True if this gateway supports the delete() method
-     */
-    public function supportsDeleteCard()
-    {
-        return method_exists($this, 'deleteCard');
-    }
+	/**
+	 * Supports CreateCard
+	 *
+	 * @return boolean True if this gateway supports the create() method
+	 */
+	public function supportsCreateCard()
+	{
+		return method_exists($this, 'createCard');
+	}
 
-    /**
-     * Supports UpdateCard
-     *
-     * @return boolean True if this gateway supports the update() method
-     */
-    public function supportsUpdateCard()
-    {
-        return method_exists($this, 'updateCard');
-    }
+	/**
+	 * Supports DeleteCard
+	 *
+	 * @return boolean True if this gateway supports the delete() method
+	 */
+	public function supportsDeleteCard()
+	{
+		return method_exists($this, 'deleteCard');
+	}
 
-    /**
-     * Create and initialize a request object using existing parameters from this gateway
-     */
-    protected function createRequest($class, array $parameters)
-    {
-        $obj = new $class($this->httpClient, $this->httpRequest);
+	/**
+	 * Supports UpdateCard
+	 *
+	 * @return boolean True if this gateway supports the update() method
+	 */
+	public function supportsGetTransactionDetails()
+	{
+		return method_exists($this, 'getTransactionDetails');
+	}
 
-        return $obj->initialize(array_replace($this->getParameters(), $parameters));
-    }
+	/**
+	 * Supports UpdateCard
+	 *
+	 * @return boolean True if this gateway supports the update() method
+	 */
+	public function supportsUpdateCard()
+	{
+		return method_exists($this, 'updateCard');
+	}
 
-    protected function getDefaultHttpClient()
-    {
-        return new HttpClient(
-            '',
-            array(
-                'curl.options' => array(CURLOPT_CONNECTTIMEOUT => 60),
-            )
-        );
-    }
+	/**
+	 * Create and initialize a request object using existing parameters from this gateway
+	 */
+	protected function createRequest($class, array $parameters)
+	{
+		$obj = new $class($this->httpClient, $this->httpRequest);
 
-    protected function getDefaultHttpRequest()
-    {
-        return HttpRequest::createFromGlobals();
-    }
+		return $obj->initialize(array_replace($this->getParameters(), $parameters));
+	}
+
+	protected function getDefaultHttpClient()
+	{
+		return new HttpClient(
+				'', array(
+			'curl.options' => array(CURLOPT_CONNECTTIMEOUT => 60),
+				)
+		);
+	}
+
+	protected function getDefaultHttpRequest()
+	{
+		return HttpRequest::createFromGlobals();
+	}
+
 }

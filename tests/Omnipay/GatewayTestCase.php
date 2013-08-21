@@ -125,6 +125,18 @@ abstract class GatewayTestCase extends TestCase
         }
     }
 
+	public function testSupportsGetTransactionDetails()
+    {
+        $supportsGetTransactionDetails = $this->gateway->supportsGetTransactionDetails();
+        $this->assertInternalType('boolean', $supportsGetTransactionDetails);
+
+        if ($supportsGetTransactionDetails) {
+            $this->assertInstanceOf('Omnipay\Common\Message\RequestInterface', $this->gateway->getTransactionDetails());
+        } else {
+            $this->assertFalse(method_exists($this->gateway, 'getTransactionDetails'));
+        }
+    }
+	
     public function testSupportsRefund()
     {
         $supportsRefund = $this->gateway->supportsRefund();
