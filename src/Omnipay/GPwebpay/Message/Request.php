@@ -95,7 +95,7 @@ class Request extends AbstractRequest
 	public function getAmount()
 	{
 		$amount = \number_format($this->getParameter('amount'), 2, '.', '') * 100;
-		return $amount;
+		return (int) $amount;
 	}
 
 	public function setCurrency($currency)

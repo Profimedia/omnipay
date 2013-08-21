@@ -61,6 +61,8 @@ class RequestTest extends TestCase
 	public function testParameters()
 	{
 		$amount = 10;
+		//gpwebay doesn't have decimal pointer
+		$gpAmount = $amount*100;
 		$currency = "CZK";
 		$depositflag = 1;
 		$returnUrl = "blabla";
@@ -73,7 +75,7 @@ class RequestTest extends TestCase
 		$pathPGW = "dsfsdf";
 				
 		$this->object->setAmount($amount);
-		$this->assertSame($amount, $this->object->getAmount());
+		$this->assertSame($gpAmount, $this->object->getAmount());
 		$this->object->setCurrency($currency);
 		$this->assertSame($currency, $this->object->getCurrency());
 		$this->object->setDepositflag($depositflag);
